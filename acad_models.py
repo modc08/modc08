@@ -1,5 +1,5 @@
 # Django models based on MODC08 Metadata Schema v1.0
-# CF 21/11/14
+# CF 21/11/14, 27/11/14
 
 from django.db import models
 
@@ -63,23 +63,19 @@ class Source(models.Model):
     env_biome = models.CharField("Broad ecological context of where source collected", max_length=255, blank=True)
     env_feature = models.CharField("Geographic environmental features", max_length=255, blank=True)
     env_material = models.CharField("Material in which source was embedded, or material displaced", max_length=255, blank=True)
-    carbondate_years = models.PositiveSmallIntegerField("Estimated age of source in radiocarbon years", blank=True)
-    carbondate_error = models.PositiveSmallIntegerField("Estimated carbon date error range (in radiocarbon years)", blank=True)
+    carbondate_years = models.PositiveSmallIntegerField("Estimated age of source in radiocarbon years", blank=True, null=True)
+    carbondate_error = models.PositiveSmallIntegerField("Estimated carbon date error range (in radiocarbon years)", blank=True, null=True)
     carbondate_id = models.CharField("Centre + id reference for carbon dating", blank=True, max_length=255)
     source_notes = models.TextField("Free text notes about source", blank=True)
 
     def __unicode__(self):
-        return str(self.organism) + " " + self.source_details + ", " + self.geoloc_country + ", " + self.geoloc_locale + " " + str(self.date)
+        return str(self.organism.get_common_name()) + " " + self.source_details + ", " + self.geoloc_country + " " + str(self.date)
 
     def get_organism(self):
         return str(self.organism)
 
     def get_source_id(self):
         return self.id
-
-    def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
-        return reverse('source_detail', args=[str(self.id)])
 
 class Sample(models.Model):
     SAMPLE_CATS = (
@@ -104,10 +100,6 @@ class Sample(models.Model):
 
     def __unicode__(self):
         return self.get_sample_cat_display() + " (" + self.sample_details + ") from " + " source " + str(self.source.get_source_id())
-
-    def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
-        return reverse('sample_detail', args=[str(self.id)])
 
 class Extract(models.Model):
     id = models.CharField("Extract ID", primary_key=True, max_length=255)
@@ -187,7 +179,7 @@ class Processing(models.Model):
     contigs = models.PositiveSmallIntegerField("Number of contiguous sequences", blank=True, null=True)
 
     def __unicode__(self):
-        return self.id
+        return "Processing " + self.id
 
 class Analysis(models.Model):
     class Meta:
@@ -196,7 +188,7 @@ class Analysis(models.Model):
     id = models.CharField("Analysis ID", primary_key=True, max_length=255)
 
     def __unicode__(self):
-        return self.id
+        return "Analysis " + self.id
 
     # more fields to come here
     #dataset = models.OneToOneField(Dataset)
