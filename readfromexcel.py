@@ -18,6 +18,10 @@ class ReadFromExcel(object):
         data = []
 
         for sheet in self.wb.sheets():
+            """ If sheet name starts with '_', skip processing that sheet """
+            if re.match('_', sheet.name):
+                continue
+
             model = self.prefix + '.' + sheet.name.lower()
 
             """ Assume Excel input follows this format:
@@ -31,7 +35,13 @@ class ReadFromExcel(object):
                 dict = {}
 
                 for column in range(0, sheet.ncols):
-                    dict[str(sheet.cell_value(0, column))] = str(sheet.cell_value(row, column))
+                    value = str(sheet.cell_value(row, column))
+                    """ Excel stores all numerical values as floats, even if no
+                    decimal component (1234 -> 1234.0). So, strip any '.0' from
+                    end of value """
+                    if re.search('.0$', value):
+                        value = re.sub('.0$', '', value)
+                    dict[str(sheet.cell_value(0, column))] = value
 
                 """ Assume each sheet has an field name 'id' which corresponds
                 to pk of model """
