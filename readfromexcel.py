@@ -39,8 +39,8 @@ class ReadFromExcel(object):
                     """ Excel stores all numerical values as floats, even if no
                     decimal component (1234 -> 1234.0). So, strip any '.0' from
                     end of value """
-                    if re.search('.0$', value):
-                        value = re.sub('.0$', '', value)
+                    if re.search('\.0$', value):
+                        value = re.sub('\.0$', '', value)
                     dict[str(sheet.cell_value(0, column))] = value
 
                 """ Assume each sheet has an field name 'id' which corresponds
